@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffee Preferences Statistics</title>
+    <title>The Coffee Shop Study</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -46,7 +46,7 @@
             }
 
             canvas {
-                max-width: 90%;
+                max-width: 65%;
                 /* Makes charts fit better on small screens */
             }
         }
@@ -54,7 +54,7 @@
 </head>
 
 <body>
-    <h1>Coffee Preferences Statistics</h1>
+    <h1>The Coffee Shop Study</h1>
     <h2 id="respondentCount">Loading...</h2>
     <p>
         This is an ongoing study, conducted for the purpose of finding out which
@@ -141,6 +141,56 @@
                     });
                 }
 
+                function createRadarChart(chartId, label, dataObj) {
+                    let canvas = document.getElementById(chartId);
+
+                    if (!canvas) {
+                        console.warn(`Element #${chartId} not found. Creating new canvas.`);
+
+                        // Create and append a new canvas inside the container
+                        canvas = document.createElement('canvas');
+                        canvas.id = chartId;
+                        document.querySelector('.container').appendChild(canvas);
+                    }
+
+                    // Clear previous chart instance if it exists
+                    if (Chart.getChart(chartId)) {
+                        Chart.getChart(chartId).destroy();
+                    }
+
+                    const ctx = canvas.getContext('2d');
+
+                    new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: Object.keys(dataObj), // These will be the labels for the different categories (e.g., gender, orientation, etc.)
+                            datasets: [{
+                                label: label,
+                                data: Object.values(dataObj), // Values for each category (e.g., number of participants for each gender)
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)', // Semi-transparent fill
+                                borderColor: 'rgba(54, 162, 235, 1)', // Border color
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                r: {
+                                    angleLines: {
+                                        display: true // Show the lines connecting to the center
+                                    },
+                                    suggestedMin: 0, // Minimum value for the scale
+                                    suggestedMax: Math.max(...Object.values(dataObj)) + 1, // Maximum value for the scale
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'top', // Position of the legend
+                                }
+                            }
+                        }
+                    });
+                }
 
                 function processData(coffeeData) {
                     const respondentCountElement = document.getElementById("respondentCount");
