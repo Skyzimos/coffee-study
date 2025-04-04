@@ -7,7 +7,8 @@
     <title>The Coffee Shop Study</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body, html {
+        body,
+        html {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
@@ -87,7 +88,6 @@
                     Chart.controllers.line,
                 );
 
-
                 async function fetchData() {
                     try {
                         const response = await fetch(sheetURL);
@@ -106,16 +106,27 @@
                     }, {});
                 }
 
-                function countOrientationByCoffee(data, coffeeType, gender) {
+                function countOrientationAndGenderByCoffee(data, coffeeType, gender, orientations) {
                     return data.reduce((acc, item) => {
-                        if (item.coffee === coffeeType && item.gender === gender) {
+                        if (item.coffee === coffeeType && item.gender === gender && orientations.includes(item.orientation)) {
                             acc[item.orientation] = (acc[item.orientation] || 0) + 1;
+                            console.log(item)
                         }
                         return acc;
                     }, {});
                 }
 
-                function createChart(chartId, type = 'bar', label, dataObj) {
+                function countOrientationByCoffee(data, coffeeType, gender) {
+                    return data.reduce((acc, item) => {
+                        if (item.coffee === coffeeType && item.gender === gender) {
+                            acc[item.orientation] = (acc[item.orientation] || 0) + 1;
+                            console.log(item)
+                        }
+                        return acc;
+                    }, {});
+                }
+
+                function createChart(chartId, type = 'bar', label, dataObj, colors) {
                     let canvas = document.getElementById(chartId);
 
                     if (!canvas) {
@@ -138,10 +149,17 @@
                         data: {
                             labels: Object.keys(dataObj),
                             datasets: [{
-                                label: label,
                                 data: Object.values(dataObj),
-                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+                                backgroundColor: Object.values(colors),
                             }]
+                        },
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: label
+                                }
+                            }
                         }
                     });
                 }
@@ -216,6 +234,9 @@
                     createChart("genderCoffeeBarChart", "bar", "Participant Distribution (at Each Coffee Shop)", countByCategory(coffeeData, "coffee"), ['#FF6384', '#36A2EB']);
 
                     createChart("orientationPolarChart", "polarArea", "Which Orientation Visits Coffee Shops the Most?", countByCategory(coffeeData, "orientation"), ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']);
+
+                    createChart("caribouLesbianStraightChart", "pie", "Lesbian v. Straight Women at Caribou", countOrientationByCoffee(coffeeData, "Caribou Coffee", "Female", ["Straight", "Lesbian"]), ['#FF6384', '#36A2EB']);
+                    createChart("StarbucksLesbianStraightChart", "pie", "Lesbian v. Straight Women at Starbucks", countOrientationByCoffee(coffeeData, "Starbucks", "Female", ["Straight", "Lesbian"]), ['#FF6384', '#36A2EB']);
                 }
 
                 document.addEventListener("DOMContentLoaded", () => {
